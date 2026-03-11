@@ -1,92 +1,183 @@
 import { createStore } from 'vuex'
+import { SLOT_RECIPES, TABLE_RECIPES } from '../config/recipes'
 
-const recipes = [
-  { ingredients: { fire: 1, water: 1 }, result: 'steam' },
-  { ingredients: { earth: 1, water: 1 }, result: 'mud' },
-  { ingredients: { fire: 1, earth: 1 }, result: 'lava' }
-]
+export const MUTATIONS = {
+  ADD_TO_TABLE: 'ADD_TO_TABLE',
+  DECREASE_FROM_TABLE: 'DECREASE_FROM_TABLE',
+  REMOVE_ELEMENT_COMPLETELY: 'REMOVE_ELEMENT_COMPLETELY',
+  CLEAR_TABLE: 'CLEAR_TABLE',
+  SET_SLOT: 'SET_SLOT',
+  CLEAR_SLOTS: 'CLEAR_SLOTS',
+  ADD_DISCOVERED: 'ADD_DISCOVERED'
+}
+
+export const ACTIONS = {
+  ADD_TO_TABLE: 'addToTable',
+  DECREASE_FROM_TABLE: 'decreaseFromTable',
+  REMOVE_ELEMENT_COMPLETELY: 'removeElementCompletely',
+  CLEAR_TABLE: 'clearTable',
+  SET_SLOT: 'setSlot',
+  CHECK_SLOT_RECIPES: 'checkSlotRecipes',
+  MIX: 'mix'
+}
+
+export const GETTERS = {
+  DISCOVERED_ELEMENTS: 'discoveredElements',
+  TABLE_ELEMENTS: 'tableElements',
+  SLOTS: 'slots'
+}
+
+const containsPattern = (matrix, pattern, startRow = 0, startCol = 0) => {
+  const rows = matrix.length
+  const cols = matrix[0].length
+  const pRows = pattern.length
+  const pCols = pattern[0].length
+
+  if (startRow > rows - pRows) {
+    return false
+  }
+
+  if (startCol > cols - pCols) {
+    return containsPattern(matrix, pattern, startRow + 1, 0)
+  }
+
+  const isMatch = pattern.every((patternRow, i) => 
+    patternRow.every((patternValue, j) => {
+      if (patternValue === null) {
+        return true
+      }
+
+      return matrix[startRow + i]?.[startCol + j] === patternValue
+    })
+  )
+
+  return isMatch || containsPattern(matrix, pattern, startRow, startCol + 1)
+}
 
 export const store = createStore({
   state: {
-    discovered: ['fire', 'water', 'earth', 'air'],
-    table: {}
+    discovered:[1,2,3,4],
+    table: {},
+    slots: Array(9).fill(null)
   },
 
   getters: {
-    discoveredElements: state => state.discovered,
-    tableElements: state => state.table
+    [GETTERS.DISCOVERED_ELEMENTS]: (state) => state.discovered,
+    [GETTERS.TABLE_ELEMENTS]: (state) => state.table,
+    [GETTERS.SLOTS]: (state) => state.slots
   },
 
-  mutations: {
-    ADD_TO_TABLE(state, element) {
-      if (!state.table[element]) {
-        state.table[element] = 0
+  mutations:{
+    [MUTATIONS.ADD_TO_TABLE]: (state, id) => {
+      state.table = {
+        ...state.table,
+        [id]:(state.table[id]||0)+1
       }
-      
-      state.table[element]++
     },
 
-    DECREASE_FROM_TABLE(state, element) {
-      if (!state.table[element]) {
+    [MUTATIONS.DECREASE_FROM_TABLE]: (state, id) => {
+      if (!state.table[id]) {
         return
       }
 
-      state.table[element]--
-
-      if (state.table[element] <= 0) {
-        delete state.table[element]
+      const newCount = state.table[id] - 1
+      if (newCount <= 0) {
+        const {[id]:removed,...rest} = state.table
+        state.table = rest
+      } else {
+        state.table = {
+          ...state.table,
+          [id]: newCount
+        }
       }
     },
 
-    REMOVE_ELEMENT_COMPLETELY(state, element) {
-      delete state.table[element]
+    [MUTATIONS.REMOVE_ELEMENT_COMPLETELY]: (state, id) => {
+      const {[id]:removed, ...rest} = state.table
+      state.table = rest
     },
 
-    CLEAR_TABLE(state) {
+    [MUTATIONS.CLEAR_TABLE]: (state) => {
       state.table = {}
     },
 
-    ADD_DISCOVERED(state, element) {
-      if (!state.discovered.includes(element)) {
-        state.discovered.push(element)
+    [MUTATIONS.SET_SLOT]: (state, { index, el }) => {
+      state.slots = state.slots.map((s, i) =>
+        i === index ? el : s
+      )
+    },
+
+    [MUTATIONS.CLEAR_SLOTS]: (state) => {
+      state.slots = Array(9).fill(null)
+    },
+
+    [MUTATIONS.ADD_DISCOVERED]: (state, id) => {
+      if (!state.discovered.includes(id)) {
+        state.discovered = [...state.discovered,id]
       }
     }
   },
 
   actions: {
-    addToTable({ commit }, element) {
-      commit('ADD_TO_TABLE', element)
+    [ACTIONS.ADD_TO_TABLE]: ({ commit }, id) => {
+      commit(MUTATIONS.ADD_TO_TABLE, id)
     },
 
-    decreaseFromTable({ commit }, element) {
-      commit('DECREASE_FROM_TABLE', element)
+    [ACTIONS.DECREASE_FROM_TABLE]: ({ commit }, id) => {
+      commit(MUTATIONS.DECREASE_FROM_TABLE, id)
     },
 
-    removeElementCompletely({ commit }, element) {
-      commit('REMOVE_ELEMENT_COMPLETELY', element)
+    [ACTIONS.REMOVE_ELEMENT_COMPLETELY]: ({ commit }, id) => {
+      commit(MUTATIONS.REMOVE_ELEMENT_COMPLETELY, id)
     },
 
-    clearTable({ commit }) {
-      commit('CLEAR_TABLE')
+    [ACTIONS.CLEAR_TABLE]: ({ commit }) => {
+      commit(MUTATIONS.CLEAR_TABLE)
     },
 
-    mix({ state, commit }) {
+    [ACTIONS.SET_SLOT]: ({ commit, dispatch }, payload) => {
+      commit(MUTATIONS.SET_SLOT, payload)
+      dispatch(ACTIONS.CHECK_SLOT_RECIPES)
+    },
+
+    [ACTIONS.CHECK_SLOT_RECIPES]: ({ state, commit }) => {
+      const slots = state.slots
+      const foundRecipe = SLOT_RECIPES.find(recipe => {
+        return Object.entries(recipe.pattern).every(([position, requiredElement]) => {
+          return slots[position] === requiredElement
+        })
+      })
+
+      if (foundRecipe) {
+        commit(MUTATIONS.ADD_DISCOVERED, foundRecipe.result)
+        commit(MUTATIONS.CLEAR_SLOTS)
+        commit(MUTATIONS.ADD_TO_TABLE, foundRecipe.result)
+        return true
+      }
+
+      return false
+    },
+
+    [ACTIONS.MIX]: ({ state, commit }) => {
       const table = state.table
+      const tableKeys = Object.keys(table)
 
-      const found = recipes.find(recipe => {
+      const foundRecipe = TABLE_RECIPES.find(recipe => {
         const recipeKeys = Object.keys(recipe.ingredients)
-        const tableKeys = Object.keys(table)
 
-        return (
-          recipeKeys.length === tableKeys.length &&
-          recipeKeys.every(key => recipe.ingredients[key] === table[key])
+        if (recipeKeys.length !== tableKeys.length) {
+          return false
+        }
+
+        return recipeKeys.every(key => 
+          table[key] === recipe.ingredients[key]
         )
       })
 
-      if (found) {
-        commit('ADD_DISCOVERED', found.result)
-        commit('CLEAR_TABLE')
-        commit('ADD_TO_TABLE', found.result)
+      if (foundRecipe) {
+        commit(MUTATIONS.ADD_DISCOVERED, foundRecipe.result)
+        commit(MUTATIONS.CLEAR_TABLE)
+        commit(MUTATIONS.ADD_TO_TABLE, foundRecipe.result)
       }
     }
   }
