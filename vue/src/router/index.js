@@ -2,6 +2,7 @@ import { createWebHistory, createRouter } from 'vue-router'
 import IndexPage from './../components/pages/IndexPage.vue'
 import ExamplePage from './../components/pages/ExamplePage.vue'
 import AlchemyPage from './../components/pages/AlchemyPage.vue'
+import ApiPage from './../components/pages/ApiPage.vue'
 
 export const ROUTES = {
   EXAMPLE: 'EXAMPLE',
@@ -21,9 +22,14 @@ const routes = [
     component: IndexPage
   },
   {
-    name: ROUTES.ALCHEMY, 
-    path: '/alchemy', 
+    name: ROUTES.ALCHEMY,
+    path: '/alchemy',
     component: AlchemyPage
+  },
+  {
+    name: 'API',
+    path: '/api',
+    component: ApiPage
   },
 ]
 

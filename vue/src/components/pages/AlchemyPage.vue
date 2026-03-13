@@ -2,16 +2,29 @@
   <div class="alchemy">
     <ElementsField />
     <CraftTable />
+    <Leaderboard/>
   </div>
 </template>
 
 <script>
 import ElementsField from '../alchemy/ElementsField.vue'
 import CraftTable from '../alchemy/CraftTable.vue'
+import Leaderboard from '../alchemy/Leaderboard.vue'
+import { watch } from 'vue'
+import { useStore } from 'vuex'
 
 export default {
   name: 'AlchemyPage',
-  components: { ElementsField, CraftTable }
+  components: { ElementsField, CraftTable , Leaderboard},
+    setup() {
+    const store = useStore()
+    
+    watch(() => store.state.discovered, (newVal, oldVal) => {
+      if (newVal.length > oldVal.length) {
+        console.log('🎉 Открыт новый элемент!', newVal[newVal.length - 1])
+      }
+    }, { deep: true })
+  }
 }
 </script>
 

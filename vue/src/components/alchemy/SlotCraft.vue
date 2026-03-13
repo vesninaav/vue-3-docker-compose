@@ -1,4 +1,5 @@
 <template>
+    <div ref="slotsContainer" class="slots">
     <div class="slots">
         <div v-for="(slot, index) in slots"
             :key="index"
@@ -16,6 +17,7 @@
             <span v-if="slot">{{ elements[slot]?.icon }}</span>
         </div>
     </div>
+    </div>
 </template>
 
 <script>
@@ -28,9 +30,18 @@ export default{
 
     elements(){
         return ELEMENTS
-    }
+    },
+      setup() {
+    const slotsContainer = ref(null)
+    
+    onMounted(() => {
+      console.log('Ширина контейнера слотов:', slotsContainer.value?.offsetWidth)
+    })
+    
+    return { slotsContainer }
+  }
   },
-  
+
   methods: {
     ...mapActions(['setSlot']),
 

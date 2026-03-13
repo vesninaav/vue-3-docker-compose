@@ -12,12 +12,13 @@
 
 <script>
 import { ELEMENTS } from '../../config/elements'
+import { onMounted, onUnmounted, onUpdated } from 'vue'
 
 export default {
   props:{ 
     id:Number 
   },
-  
+
   computed:{
     element(){
       return ELEMENTS[this.id]
@@ -34,6 +35,20 @@ export default {
     select() {
       this.$emit('select', this.id)
     }
+  },
+
+  setup() {
+    onMounted(() => {
+      console.log('✅ Компонент ElementCard смонтирован')
+    })
+    
+    onUpdated(() => {
+      console.log('🔄 Компонент ElementCard обновлён')
+    })
+    
+    onUnmounted(() => {
+      console.log('❌ Компонент ElementCard демонтирован')
+    })
   }
 }
 </script>
