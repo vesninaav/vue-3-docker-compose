@@ -39,15 +39,15 @@ export default {
 
   setup() {
     onMounted(() => {
-      console.log('✅ Компонент ElementCard смонтирован')
+      console.log('Компонент ElementCard смонтирован')
     })
     
     onUpdated(() => {
-      console.log('🔄 Компонент ElementCard обновлён')
+      console.log('Компонент ElementCard обновлён')
     })
     
     onUnmounted(() => {
-      console.log('❌ Компонент ElementCard демонтирован')
+      console.log('Компонент ElementCard демонтирован')
     })
   }
 }

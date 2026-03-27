@@ -7,7 +7,7 @@
         </div>
       </div>
     </transition>
-
+<!-- рендеринг списка -->
     <div class="table">
       <div class="table__items">
         <div
@@ -25,7 +25,7 @@
           <span class="table__icon">{{elements[id].icon}}</span>
           <span class="table__name">{{elements[id].name}}</span>
           <span class="table__count">x{{ count }}</span>
-
+          <!-- Обработка событий -->
           <div class="table__controls">
             <button @click="() => decrease(id)">−</button>
             <button @click="() => add(id)">+</button>

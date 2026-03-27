@@ -8,6 +8,7 @@ export const ROUTES = {
   EXAMPLE: 'EXAMPLE',
   INDEX: 'INDEX',
   ALCHEMY: 'ALCHEMY',
+  API: 'API',
 }
 
 const routes = [
@@ -27,7 +28,7 @@ const routes = [
     component: AlchemyPage
   },
   {
-    name: 'API',
+    name: ROUTES.API,
     path: '/api',
     component: ApiPage
   },

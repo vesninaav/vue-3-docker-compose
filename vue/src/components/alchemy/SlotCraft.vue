@@ -14,6 +14,7 @@
             >
                 ✕
             </button>
+            <!-- условный рендеринг -->
             <span v-if="slot">{{ elements[slot]?.icon }}</span>
         </div>
     </div>

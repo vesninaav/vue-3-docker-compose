@@ -14,7 +14,7 @@
       </span>
     </div>
 
-    <!-- Фильтрованные элементы -->
+    <!-- Использование props из ElementCard -->
     <div class="field">
       <ElementCard
         v-for="id in filteredElements"
@@ -44,7 +44,7 @@ export default {
       searchQuery: ''
     }
   },
-
+//Computed свойства
   computed: {
     ...mapGetters(['discoveredElements']),
     

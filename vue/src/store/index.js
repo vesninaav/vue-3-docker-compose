@@ -55,6 +55,7 @@ const containsPattern = (matrix, pattern, startRow = 0, startCol = 0) => {
 }
 
 export const store = createStore({
+  //Объявление реактивного состояния
   state: {
     discovered:[1,2,3,4],
     table: {},
